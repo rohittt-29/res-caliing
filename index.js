@@ -34,7 +34,12 @@ const sessions = {}
 app.get('/', (req, res) => {
   res.send('Calling Agent Server Running!')
 })
-
+// Server ko awake rakhne ke liye
+const https = require('https')
+setInterval(() => {
+  https.get('https://res-caliing.onrender.com')
+    .on('error', () => {})
+}, 14 * 60 * 1000)
 
 app.post('/incoming-call', (req, res) => {
   console.log('Call aaya!')
@@ -120,7 +125,7 @@ app.post('/handle-response', async (req, res) => {
       messages: [
         {
           role: 'system',
-          content: `You are a friendly voice ordering assistant for Sharma's Kitchen.
+        content: `You are a friendly voice ordering assistant for Sharma's Kitchen.
 Menu:
 - Butter Chicken - Rs 280
 - Paneer Tikka - Rs 240
@@ -157,31 +162,25 @@ RULES:
 
     console.log('Bot ka reply:', cleanReply)
     // Order confirm hua?
-    if (botReply.includes('ORDER_CONFIRMED')) {
-      // Session clear karo
-      delete sessions[callSid]
-      if (botReply.includes('ORDER_CONFIRMED')) {
-        // Items aur total extract karo
-        const itemsMatch = botReply.match(/Items:\s*(.+?)Total:/s)
-        const itemsText = itemsMatch ? itemsMatch[1].trim() : 'Order'
-        const totalMatch = botReply.match(/Total:\s*Rs\s*(\d+)/)
-        const totalAmount = totalMatch ? totalMatch[1] : '0'
+   if (botReply.includes('ORDER_CONFIRMED')) {
+  const itemsMatch = botReply.match(/Items:\s*(.+?)Total:/s)
+  const itemsText = itemsMatch ? itemsMatch[1].trim() : 'Order'
+  const totalMatch = botReply.match(/Total:\s*Rs\s*(\d+)/)
+  const totalAmount = totalMatch ? totalMatch[1] : '0'
 
-        // MongoDB mein save karo
-        const newOrder = new Order({
-          customerNumber: callSid,
-          items: itemsText,
-          total: totalAmount,
-          status: 'pending',
-          source: 'call'
-        })
-        await newOrder.save()
-        console.log('Order saved to MongoDB!')
+  const newOrder = new Order({
+    customerNumber: callSid,
+    items: itemsText,
+    total: totalAmount,
+    status: 'pending',
+    source: 'call'
+  })
+  await newOrder.save()
+  console.log('Order saved to MongoDB!')
 
-        // Session clear karo
-        delete sessions[callSid]
+  delete sessions[callSid]
 
-        const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+  const twiml = `<?xml version="1.0" encoding="UTF-8"?>
     <Response>
       <Say voice="Polly.Aditi" language="hi-IN">
         Aapka order confirm ho gaya hai. Dhanyawad Sharma's Kitchen mein aane ke liye!
@@ -189,23 +188,12 @@ RULES:
       <Hangup/>
     </Response>`
 
-        res.type('text/xml')
-        res.send(twiml)
-        return
-      }
+  res.type('text/xml')
+  res.send(twiml)
+  return
+}
 
-      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-            <Response>
-              <Say voice="Polly.Aditi" language="hi-IN">
-                Aapka order confirm ho gaya hai. Dhanyawad Sharma's Kitchen mein aane ke liye!
-              </Say>
-              <Hangup/>
-            </Response>`
-
-      res.type('text/xml')
-      res.send(twiml)
-      return
-    }
+    
 
     const twiml = `<?xml version="1.0" encoding="UTF-8"?>
         <Response>
