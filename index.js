@@ -120,7 +120,7 @@ app.post('/handle-response', async (req, res) => {
       messages: [
         {
           role: 'system',
-        content: `You are a friendly voice ordering assistant for Sharma's Kitchen.
+          content: `You are a friendly voice ordering assistant for Sharma's Kitchen.
 Menu:
 - Butter Chicken - Rs 280
 - Paneer Tikka - Rs 240
@@ -241,7 +241,7 @@ app.get('/make-call', async (req, res) => {
   await twilioClient.calls.create({
     to: '+917977453422',
     from: '+14422731148',
-    url: ' https://hopkins-rebel-hit-election.trycloudflare.com/incoming-call'
+    url: ' https://res-caliing.onrender.com/incoming-call'
   })
   res.send('Call ho raha hai!')
 })
