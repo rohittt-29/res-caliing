@@ -229,7 +229,7 @@ app.get('/make-call', async (req, res) => {
   await twilioClient.calls.create({
     to: '+917977453422',
     from: '+14422731148',
-    url: ' https://res-caliing.onrender.com/incoming-call'
+    url: 'https://res-caliing.onrender.com/incoming-call'
   })
   res.send('Call ho raha hai!')
 })
